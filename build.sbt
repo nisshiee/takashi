@@ -22,7 +22,13 @@ testOptions in (Test, test) += Tests.Argument("console", "html", "junitxml")
 initialCommands := """
 import scalaz._
 import Scalaz._
+import org.nisshiee.takashi._
 """
+
+scalacOptions in Compile ++= Seq(
+   "-language:postfixOps"
+  ,"-Xfatal-warnings"
+)
 
 
 // ========== for scaladoc ==========
