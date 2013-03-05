@@ -27,7 +27,9 @@ import org.nisshiee.takashi._
 
 scalacOptions in Compile ++= Seq(
    "-language:postfixOps"
+  ,"-language:implicitConversions"
   ,"-Xfatal-warnings"
+  ,"-feature"
 )
 
 
