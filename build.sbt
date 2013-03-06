@@ -11,6 +11,7 @@ scalaVersion := "2.10.0"
 libraryDependencies := Seq(
    "org.scalaz" %% "scalaz-core" % "7.0.0-M8"
   ,"com.github.tototoshi" %% "scala-csv" % "0.7.0"
+  ,"com.typesafe.akka" %% "akka-actor" % "2.1.1"
   ,"org.specs2" %% "specs2" % "1.12.3" % "test"
   ,"org.mockito" % "mockito-all" % "1.9.0" % "test"
   ,"junit" % "junit" % "4.10" % "test"
