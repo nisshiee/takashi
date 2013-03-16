@@ -3,18 +3,32 @@ package org.nisshiee.takashi.prob1
 import akka.actor._
 import scalaz._, Scalaz._
 import com.typesafe.config.ConfigFactory
-import akka.routing.RoundRobinRouter
+import akka.routing._
 import Takashi._
+import scala.collection.JavaConverters._
 
 object AkkaTakashi {
 
   lazy val system = ActorSystem("takashi-prob1")
   lazy val aggregater = system.actorOf(Props[Aggregater], "aggregater")
-  lazy val searchActor =
-    system.actorOf(Props[SearchActor].withRouter(RoundRobinRouter(4)), "searchActor")
   val depth = ConfigFactory.load.getInt("takashi.prob1.akka.search.depth")
+  val searchActorPath = ConfigFactory.load.getString("takashi.prob1.akka.searchActor")
+  val searchActorNodes = ConfigFactory.load.getStringList("takashi.prob1.akka.searchActorNodes").asScala
+
+  //def startSearchNode = system.actorOf(Props[SearchActor].withRouter(FromConfig()), "searchActor")
+  def startSearchNode = {
+    system.actorOf(Props[SearchActor], "searchActor01")
+    system.actorOf(Props[SearchActor], "searchActor02")
+    system.actorOf(Props[SearchActor], "searchActor03")
+    system.actorOf(Props[SearchActor], "searchActor04")
+  }
 
   def routeCount(f: Field, id: Long) = {
+
+    //val searchActor = system.actorFor(searchActorPath)
+
+    val router = new RoundRobinRouter(routees = searchActorNodes)
+    val searchActor = system.actorOf(Props[SearchActor].withRouter(router), "searchActor")
 
     aggregater ! Aggregater.Start(id)
     val (goalCount, rest) = searchrec(f, depth)
