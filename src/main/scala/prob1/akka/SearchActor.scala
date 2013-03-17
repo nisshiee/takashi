@@ -1,24 +1,16 @@
 package org.nisshiee.takashi.prob1
 
 import akka.actor._
-import com.typesafe.config.ConfigFactory
 
 class SearchActor extends Actor {
 
   import SearchActor._
   import Aggregater.Push
 
-  val aggregaterPath = ConfigFactory.load.getString("takashi.prob1.akka.aggregater")
-  //val aggregater = context.actorFor("akka://takashi-prob1/user/aggregater")
-
-  val aggregater = context.actorFor(aggregaterPath)
-
   def receive = {
     case Req(f, id) => {
-      println("receive!")
       val goalCount = Takashi.routeCount(f)
-      println("finish!")
-      aggregater ! Aggregater.Push(id, -1L, goalCount)
+      sender ! Aggregater.Push(id, -1L, goalCount)
     }
   }
 
@@ -27,4 +19,18 @@ class SearchActor extends Actor {
 object SearchActor {
 
   case class Req(f: Field, id: Long)
+
+  def startSearchNode() = {
+    import com.typesafe.config.ConfigFactory
+    import scala.collection.JavaConverters._
+
+    val actorNames = ConfigFactory.load.getStringList("takashi.prob1.akka.search.names").asScala
+    val system = {
+      val name = ConfigFactory.load.getString("takashi.prob1.akka.name")
+      ActorSystem(name)
+    }
+    actorNames foreach { name =>
+      system.actorOf(Props[SearchActor], name)
+    }
+  }
 }
