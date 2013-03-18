@@ -10,27 +10,24 @@ object SimpathTakashi {
     def simpath(p: List[EdgeNode], es: Stream[(Point, Point)], lastFocus: Point): Long = es match {
       case Stream.Empty => 0L
       case e #:: t => {
-        println(e)
-        println(p)
-        println
-        val nextNodes = p flatMap { n => List(n.hi(e, f.start, f.goal), n.lo) }
-        val nextEdges = {
-          val beforeCheck: List[EdgeNode] = nextNodes collect { case n: EdgeNode => n }
-          val beforeAggregate: List[EdgeNode] = (lastFocus, e._1, f.start) match {
-            case (l, c, _) if l == c => beforeCheck
-            case (l, _, s) if l == s => beforeCheck filter {
-              case EdgeNode(ma, _) => ma.get(s) match {
-                case Some(EndOfPath(_)) => true
-                case _ => false
-              }
-            }
-            case (l, _, _) => beforeCheck filter {
-              case EdgeNode(ma, _) => ma.get(l) match {
-                case Some(EndOfPath(_)) => false
-                case _ => true
-              }
+        val checked = (lastFocus, e._1, f.start) match {
+          case (l, c, _) if l == c => p
+          case (l, _, s) if l == s => p filter {
+            case EdgeNode(ma, _) => ma.get(s) match {
+              case Some(EndOfPath(_)) => true
+              case _ => false
             }
           }
+          case (l, _, _) => p filter {
+            case EdgeNode(ma, _) => ma.get(l) match {
+              case Some(EndOfPath(_)) => false
+              case _ => true
+            }
+          }
+        }
+        val nextNodes = checked flatMap { n => List(n.hi(e, f.start, f.goal), n.lo) }
+        val nextEdges = {
+          val beforeAggregate: List[EdgeNode] = nextNodes collect { case n: EdgeNode => n }
           def aggregate: List[EdgeNode] => List[EdgeNode] = {
             case Nil => Nil
             case h :: t => {
